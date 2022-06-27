@@ -78,13 +78,13 @@ ruleTester.run(ruleId, rule, {
                 var y = "http://localhost";
             `
         },
-    {
+        {
             // should allow xml namespaces for XHTML and SVG even if outside of jsx xmlns attribute
             code: `
                 var x = "http://www.w3.org/1999/xhtml";
                 var y = "http://www.w3.org/2000/svg";
             `
-    },
+        },
     ],
     invalid: [
         {   // should ban http,ftp strings in variables
