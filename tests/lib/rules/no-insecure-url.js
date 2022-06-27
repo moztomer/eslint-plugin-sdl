@@ -165,5 +165,33 @@ ruleTester.run(ruleId, rule, {
             parser: testUtils.tsParser,
             parserOptions: testUtils.tsReactParserOptions,
         },
+        {
+            // should fix url correctly
+            code: `var a1 = "http://moz\ti\tlla.org";`,
+            output: `var a1 = ${JSON.stringify("https://moz\ti\tlla.org")};`,
+            errors: [
+                { messageId: "doNotUseInsecureUrl", line: 1},
+            ],
+        },
+         {
+            // should fix url in `` correctly
+            code: `var x1 = \`http://www.\${multipartExample}.com\`;`,
+            output: `var x1 = \`https://www.\${multipartExample}.com\`;`,
+            errors: [
+                { messageId: "doNotUseInsecureUrl", line: 1},
+            ],
+
+            parserOptions: testUtils.moduleParserOptions
+        },
+        {
+            // should fix url in `` correctly
+            code: `var x1 = \`http://moz\ti\tlla\${multipartExample}.com\`;`,
+            output: `var x1 = \`https://moz\\ti\\tlla\${multipartExample}.com\`;`,
+            errors: [
+                { messageId: "doNotUseInsecureUrl", line: 1},
+            ],
+
+            parserOptions: testUtils.moduleParserOptions
+        },
     ]
 });
