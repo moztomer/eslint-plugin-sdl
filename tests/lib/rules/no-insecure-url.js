@@ -94,6 +94,12 @@ ruleTester.run(ruleId, rule, {
                 var y1 = 'ftp://www.file-examples.com'
                 var y2 = 'FTP://www.file-examples.com'
             `,
+            output: `
+                var x1 = "https://www.examples.com"
+                var x2 = "https://www.examples.com"
+                var y1 = 'ftp://www.file-examples.com'
+                var y2 = 'FTP://www.file-examples.com'
+            `,
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 2},
                 { messageId: "doNotUseInsecureUrl", line: 3},
@@ -105,6 +111,12 @@ ruleTester.run(ruleId, rule, {
             code: `
                 var x1 = \`http://www.template-examples.com\`
                 var x2 = \`HTTP://www.template-examples.com\`
+                var y1 = \`ftp://www.file-examples.com\`
+                var y2 = \`FTP://www.file-examples.com\`
+            `,
+            output: `
+                var x1 = \`https://www.template-examples.com\`
+                var x2 = \`https://www.template-examples.com\`
                 var y1 = \`ftp://www.file-examples.com\`
                 var y2 = \`FTP://www.file-examples.com\`
             `,
@@ -121,6 +133,10 @@ ruleTester.run(ruleId, rule, {
                 var x1 = \`http://www.\${multipartExample}.com\`;
                 var y1 = \`ftp://www.\${multipartExample}.com\`;
             `,
+            output: `
+                var x1 = \`https://www.\${multipartExample}.com\`;
+                var y1 = \`ftp://www.\${multipartExample}.com\`;
+            `,
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 2},
                 { messageId: "doNotUseInsecureUrl", line: 3},
@@ -130,6 +146,10 @@ ruleTester.run(ruleId, rule, {
         {   // should ban http,ftp strings in default values
             code: `
                 function f(x : string = 'http://www.example.com') {}
+                function f(y : string = 'ftp://www.example.com') {}
+            `,
+            output: `
+                function f(x : string = "https://www.example.com") {}
                 function f(y : string = 'ftp://www.example.com') {}
             `,
             errors: [
@@ -143,6 +163,12 @@ ruleTester.run(ruleId, rule, {
             code: `
                 var a1 = 'http://www.ban-example.com'
                 var a2 = 'HTTP://www.ban-example.com/path'
+                var b1 = 'FtP://www.ban-file-example.com'
+                var c1 = 'LDAp://www.ban-ldap-example.com'
+            `,
+            output: `
+                var a1 = "https://www.ban-example.com"
+                var a2 = "https://www.ban-example.com/path"
                 var b1 = 'FtP://www.ban-file-example.com'
                 var c1 = 'LDAp://www.ban-ldap-example.com'
             `,
@@ -166,6 +192,14 @@ ruleTester.run(ruleId, rule, {
                     );
                 };
             `,
+            output: `
+                const someSvg: React.FC = () => {
+                    return (
+                        <svg someOtherAttribute="https://ban-example.com/">
+                        </svg>
+                    );
+                };
+            `,
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 4},
             ],
@@ -180,20 +214,10 @@ ruleTester.run(ruleId, rule, {
                 { messageId: "doNotUseInsecureUrl", line: 1},
             ],
         },
-         {
-            // should fix url in `` correctly
-            code: `var x1 = \`http://www.\${multipartExample}.com\`;`,
-            output: `var x1 = \`https://www.\${multipartExample}.com\`;`,
-            errors: [
-                { messageId: "doNotUseInsecureUrl", line: 1},
-            ],
-
-            parserOptions: testUtils.moduleParserOptions
-        },
         {
             // should fix url in `` correctly
-            code: `var x1 = \`http://moz\ti\tlla\${multipartExample}.com\`;`,
-            output: `var x1 = \`https://moz\\ti\\tlla\${multipartExample}.com\`;`,
+            code: "var x1 = `http://foo${multipartExample} http://${multipartExample}.com`;",
+            output: "var x1 = `https://foo${multipartExample} http://${multipartExample}.com`;",
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 1},
             ],
