@@ -224,5 +224,16 @@ ruleTester.run(ruleId, rule, {
 
             parserOptions: testUtils.moduleParserOptions
         },
+        {
+            // should fix url in `` correctly
+            // should fix url correctly
+            code: `var a1 = \`http://moz\ti\tlla.org\`;`,
+            output: `var a1 = \`${JSON.stringify("https://moz\ti\tlla.org").replaceAll('"',"")}\`;`,
+            errors: [
+                { messageId: "doNotUseInsecureUrl", line: 1},
+            ],
+
+            parserOptions: testUtils.moduleParserOptions
+        },
     ]
 });
