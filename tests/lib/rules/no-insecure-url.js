@@ -58,6 +58,15 @@ ruleTester.run(ruleId, rule, {
                 exceptions: ["HTTP:\/\/www\.allow-example\.com\/?.*", "FtP:\/\/www\.allow-file-example\.com", "LdaP:\/\/www\.allow-ldap-example\.com"]
             }]
         },
+        {   // should allow user-provided exceptions for variable name matches, regardless of upper/lower-case
+            code: `
+                var insecureURL = 'http://www.allow-example.com'
+                var InSeCuReURL = 'ftp://www.allow-example.com/path'
+            `,
+            options: [{
+                varExceptions: ["insecure?.*"]
+            }]
+        },
         {
             // should allow xml namespaces, as they are not accessed by the browser
             code: `
