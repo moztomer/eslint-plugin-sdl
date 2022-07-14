@@ -58,6 +58,15 @@ ruleTester.run(ruleId, rule, {
                 exceptions: ["HTTP:\/\/www\.allow-example\.com\/?.*", "FtP:\/\/www\.allow-file-example\.com", "LdaP:\/\/www\.allow-ldap-example\.com"]
             }]
         },
+        {   // should allow user-provided exceptions for variable name matches, regardless of upper/lower-case
+            code: `
+                var insecureURL = 'http://www.allow-example.com'
+                var InSeCuReURL = 'ftp://www.allow-example.com/path'
+            `,
+            options: [{
+                varExceptions: ["insecure?.*"]
+            }]
+        },
         {
             // should allow xml namespaces, as they are not accessed by the browser
             code: `
@@ -72,18 +81,31 @@ ruleTester.run(ruleId, rule, {
             parserOptions: testUtils.tsReactParserOptions,
         },
         {
-            // should allow xml namespaces, as they are not accessed by the browser
+            // should allow localhost
             code: `
-                var x = "http://localhost/test"
-                var y = "http://localhost"
+                var x = "http://localhost/test";
+                var y = "http://localhost";
             `
-        }
+        },
+        {
+            // should allow xml namespaces for XHTML and SVG even if outside of jsx xmlns attribute
+            code: `
+                var x = "http://www.w3.org/1999/xhtml";
+                var y = "http://www.w3.org/2000/svg";
+            `
+        },
     ],
     invalid: [
         {   // should ban http,ftp strings in variables
             code: `
                 var x1 = 'http://www.examples.com'
                 var x2 = 'HTTP://www.examples.com'
+                var y1 = 'ftp://www.file-examples.com'
+                var y2 = 'FTP://www.file-examples.com'
+            `,
+            output: `
+                var x1 = "https://www.examples.com"
+                var x2 = "https://www.examples.com"
                 var y1 = 'ftp://www.file-examples.com'
                 var y2 = 'FTP://www.file-examples.com'
             `,
@@ -101,6 +123,12 @@ ruleTester.run(ruleId, rule, {
                 var y1 = \`ftp://www.file-examples.com\`
                 var y2 = \`FTP://www.file-examples.com\`
             `,
+            output: `
+                var x1 = \`https://www.template-examples.com\`
+                var x2 = \`https://www.template-examples.com\`
+                var y1 = \`ftp://www.file-examples.com\`
+                var y2 = \`FTP://www.file-examples.com\`
+            `,
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 2},
                 { messageId: "doNotUseInsecureUrl", line: 3},
@@ -114,6 +142,10 @@ ruleTester.run(ruleId, rule, {
                 var x1 = \`http://www.\${multipartExample}.com\`;
                 var y1 = \`ftp://www.\${multipartExample}.com\`;
             `,
+            output: `
+                var x1 = \`https://www.\${multipartExample}.com\`;
+                var y1 = \`ftp://www.\${multipartExample}.com\`;
+            `,
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 2},
                 { messageId: "doNotUseInsecureUrl", line: 3},
@@ -123,6 +155,10 @@ ruleTester.run(ruleId, rule, {
         {   // should ban http,ftp strings in default values
             code: `
                 function f(x : string = 'http://www.example.com') {}
+                function f(y : string = 'ftp://www.example.com') {}
+            `,
+            output: `
+                function f(x : string = "https://www.example.com") {}
                 function f(y : string = 'ftp://www.example.com') {}
             `,
             errors: [
@@ -136,6 +172,12 @@ ruleTester.run(ruleId, rule, {
             code: `
                 var a1 = 'http://www.ban-example.com'
                 var a2 = 'HTTP://www.ban-example.com/path'
+                var b1 = 'FtP://www.ban-file-example.com'
+                var c1 = 'LDAp://www.ban-ldap-example.com'
+            `,
+            output: `
+                var a1 = "https://www.ban-example.com"
+                var a2 = "https://www.ban-example.com/path"
                 var b1 = 'FtP://www.ban-file-example.com'
                 var c1 = 'LDAp://www.ban-ldap-example.com'
             `,
@@ -154,7 +196,15 @@ ruleTester.run(ruleId, rule, {
             code: `
                 const someSvg: React.FC = () => {
                     return (
-                        <svg someOtherAttribute="http://www.w3.org/2000/svg">
+                        <svg someOtherAttribute="http://ban-example.com/">
+                        </svg>
+                    );
+                };
+            `,
+            output: `
+                const someSvg: React.FC = () => {
+                    return (
+                        <svg someOtherAttribute="https://ban-example.com/">
                         </svg>
                     );
                 };
@@ -164,6 +214,34 @@ ruleTester.run(ruleId, rule, {
             ],
             parser: testUtils.tsParser,
             parserOptions: testUtils.tsReactParserOptions,
+        },
+        {
+            // should escape the url string correctly
+            code: `var a1 = "http://moz\ti\tlla.org";`,
+            output: `var a1 = "https://moz\\ti\\tlla.org";`,
+            errors: [
+                { messageId: "doNotUseInsecureUrl", line: 1},
+            ],
+        },
+        {
+            // should fix url in `` correctly
+            code: "var x1 = `http://foo${multipartExample} http://${multipartExample}.com`;",
+            output: "var x1 = `https://foo${multipartExample} http://${multipartExample}.com`;",
+            errors: [
+                { messageId: "doNotUseInsecureUrl", line: 1},
+            ],
+
+            parserOptions: testUtils.moduleParserOptions
+        },
+        {
+            // should escape the string and fix it properly in ``
+            code: `var a1 = \`http://moz\ti\tlla.org\`;`,
+            output: `var a1 = \`https://moz\\ti\\tlla.org\`;`,
+            errors: [
+                { messageId: "doNotUseInsecureUrl", line: 1},
+            ],
+
+            parserOptions: testUtils.moduleParserOptions
         },
     ]
 });
