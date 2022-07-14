@@ -201,14 +201,6 @@ ruleTester.run(ruleId, rule, {
                     );
                 };
             `,
-            output: `
-                const someSvg: React.FC = () => {
-                    return (
-                        <svg someOtherAttribute="https://ban-example.com/">
-                        </svg>
-                    );
-                };
-            `,
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 4},
             ],
