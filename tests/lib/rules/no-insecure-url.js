@@ -218,7 +218,7 @@ ruleTester.run(ruleId, rule, {
         {
             // should escape the url string correctly
             code: `var a1 = "http://moz\ti\tlla.org";`,
-            output: `var a1 = ${JSON.stringify("https://moz\ti\tlla.org")};`,
+            output: `var a1 = "https://moz\\ti\\tlla.org";`,
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 1},
             ],
@@ -236,9 +236,7 @@ ruleTester.run(ruleId, rule, {
         {
             // should escape the string and fix it properly in ``
             code: `var a1 = \`http://moz\ti\tlla.org\`;`,
-            // first escape url string with JSON.stringify.
-            // Since JSON.stringify is adding "" to the string we need to delete them to get the proper form in ``
-            output: `var a1 = \`${JSON.stringify("https://moz\ti\tlla.org").replaceAll('"',"")}\`;`,
+            output: `var a1 = \`https://moz\\ti\\tlla.org\`;`,
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 1},
             ],
