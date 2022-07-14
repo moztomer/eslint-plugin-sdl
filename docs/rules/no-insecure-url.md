@@ -10,7 +10,7 @@ This rule comes with three [default lists](../../lib/rules/no-insecure-url.js#L1
 - **blocklist** - a RegEx list of insecure URL patterns.
 - **exceptions** - a RegEx list of common false positive patterns. For example, HTTP URLs to XML schemas are
 usually allowed as they are used as identifiers, not for establishing actual network connections.
-- **unfixable** - a RegEx list of false positive patterns which a derivated from the variable name. For example, a variable that is called "insecureURL" which is used to test HTTP explicitly.
+- **varExceptions** - a RegEx list of false positive patterns which a derivated from the variable name. For example, a variable that is called "insecureURL" which is used to test HTTP explicitly.
 
 These lists can be overrided by providing options.
 
@@ -20,7 +20,7 @@ For example, providing these options... :
 "@microsoft/sdl/no-insecure-url": ["error", {
             "blocklist": ["^(http|ftp):\\/\\/", "^https:\\/\\/www\\.disallow-example\\.com"],
             "exceptions": ["^http:\\/\\/schemas\\.microsoft\\.com\\/\\/?.*"],
-            "unfixable": ["insecure?.*"]
+            "varExceptions": ["insecure?.*"]
         }]
 ```
 
@@ -34,7 +34,7 @@ For example, providing these options... :
   - `http://schemas.microsoft.com/sharepoint`
   - `http://schemas.microsoft.com/path/subpath`
   - ...
-... and also overrides the internal unfixable list, allowing the following declaration name patterns as exceptions.:
+... and also overrides the internal variable exceptions list, allowing the following declaration name patterns as exceptions.:
 - `var insecureURL = "http://..."`
 - `var insecureWebsite = "http://..."`
 URLs in neither the blocklist nor the exceptions list, are allowed:
