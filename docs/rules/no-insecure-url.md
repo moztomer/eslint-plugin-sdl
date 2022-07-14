@@ -33,10 +33,12 @@ For example, providing these options... :
 - `http://schemas.microsoft.com`
   - `http://schemas.microsoft.com/sharepoint`
   - `http://schemas.microsoft.com/path/subpath`
+
 ... and also overrides the internal variable exceptions list, allowing the following declaration name patterns as exceptions.:
 - `var insecureURL = "http://..."`
 - `var insecureWebsite = "http://..."`
 - ...
+
 URLs in neither the blocklist nor the exceptions list, are allowed:
 - `telnet://`...
 - `ws://`...
