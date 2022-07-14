@@ -8,8 +8,7 @@ Insecure protocols such as [HTTP](https://en.wikipedia.org/wiki/Hypertext_Transf
 ## Options
 This rule comes with three [default lists](../../lib/rules/no-insecure-url.js#L13):
 - **blocklist** - a RegEx list of insecure URL patterns.
-- **exceptions** - a RegEx list of common false positive patterns. For example, HTTP URLs to XML schemas are
-usually allowed as they are used as identifiers, not for establishing actual network connections.
+- **exceptions** - a RegEx list of common false positive patterns. For example, HTTP URLs to XML schemas are usually allowed as they are used as identifiers, not for establishing actual network connections.
 - **varExceptions** - a RegEx list of false positive patterns which a derivated from the variable name. For example, a variable that is called "insecureURL" which is used to test HTTP explicitly.
 
 These lists can be overrided by providing options.

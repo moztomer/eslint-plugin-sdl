@@ -216,7 +216,7 @@ ruleTester.run(ruleId, rule, {
             parserOptions: testUtils.tsReactParserOptions,
         },
         {
-            // should fix url correctly
+            // should escape the url string correctly
             code: `var a1 = "http://moz\ti\tlla.org";`,
             output: `var a1 = ${JSON.stringify("https://moz\ti\tlla.org")};`,
             errors: [
@@ -234,9 +234,10 @@ ruleTester.run(ruleId, rule, {
             parserOptions: testUtils.moduleParserOptions
         },
         {
-            // should fix url in `` correctly
-            // should fix url correctly
+            // should escape the string and fix it properly in ``
             code: `var a1 = \`http://moz\ti\tlla.org\`;`,
+            // first escape url string with JSON.stringify.
+            // Since JSON.stringify is adding "" to the string we need to delete them to get the proper form in ``
             output: `var a1 = \`${JSON.stringify("https://moz\ti\tlla.org").replaceAll('"',"")}\`;`,
             errors: [
                 { messageId: "doNotUseInsecureUrl", line: 1},
